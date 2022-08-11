@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.IO;
 using StbImageWriteSharp;
 
@@ -44,10 +45,22 @@ public unsafe partial class Image
         _colorBuffer[3] = color.A;
     }
 
+    private byte PerformAlphaBlend(byte newValue, byte oldValue, float alpha) =>
+        (byte) (alpha * newValue + (1 - alpha) * oldValue);
+
     public void Save(string path)
     {
         using Stream stream = File.OpenWrite(path);
         ImageWriter writer = new ImageWriter();
         writer.WritePng(_buffer, Size.Width, Size.Height, ColorComponents.RedGreenBlueAlpha, stream);
+    }
+
+    public MemoryStream SavePngToMemory()
+    {
+        MemoryStream stream = new MemoryStream();
+        ImageWriter writer = new ImageWriter();
+        writer.WritePng(_buffer, Size.Width, Size.Height, ColorComponents.RedGreenBlueAlpha, stream);
+        stream.Position = 0;
+        return stream;
     }
 }

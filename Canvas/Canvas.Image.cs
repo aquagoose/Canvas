@@ -21,15 +21,14 @@ public unsafe partial class Image
             {
                 for (int pY = startY; pY < height; pY++)
                 {
-                    int bufPos = (pY * 4 + y * 4) * Size.Width + pX * 4 + x * 4;
+                    int bufPos = (pY + y) * 4 * Size.Width + (pX + x) * 4;
                     int imgPos = pY * multiplier * image.Size.Width + pX * multiplier;
 
                     float alph = alpha * (image.Components == ColorComponents.RedGreenBlueAlpha ? image.Data[imgPos + 3] / 255f : 1);
-                    
-                    buf[bufPos] = (byte) (alph * image.Data[imgPos] + (1 - alph) * buf[bufPos]);
-                    buf[bufPos + 1] = (byte) (alph * image.Data[imgPos + 1] + (1 - alph) * buf[bufPos + 1]);
-                    buf[bufPos + 2] = (byte) (alph * image.Data[imgPos + 2] + (1 - alph) * buf[bufPos + 2]);
-                    buf[bufPos + 3] = 255;
+
+                    buf[bufPos] = PerformAlphaBlend(image.Data[imgPos], buf[bufPos], alph);
+                    buf[bufPos + 1] = PerformAlphaBlend(image.Data[imgPos + 1], buf[bufPos + 1], alph);
+                    buf[bufPos + 2] = PerformAlphaBlend(image.Data[imgPos + 2], buf[bufPos + 2], alph);
                 }
             }
         }
@@ -70,8 +69,7 @@ public unsafe partial class Image
                     buf[bufPos] = (byte) (alph * image.Data[imgPos] + (1 - alph) * buf[bufPos]);
                     buf[bufPos + 1] = (byte) (alph * image.Data[imgPos + 1] + (1 - alph) * buf[bufPos + 1]);
                     buf[bufPos + 2] = (byte) (alph * image.Data[imgPos + 2] + (1 - alph) * buf[bufPos + 2]);
-                    buf[bufPos + 3] = 255;
-                    
+
                     cY += iScaleY;
                 }
                 
